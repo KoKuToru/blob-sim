@@ -23,15 +23,70 @@
 
 using namespace std;
 
-void resize(int width, int height)
-{
-    glViewport(0, 0, width, height);
+int win_width;
+int win_height;
+
+float view_x = 0;
+float view_y = 0;
+float zoom = 1.0;
+
+void update() {
+    glViewport(0, 0, win_width, win_height);
     glLoadIdentity();
-    glScalef(1.0/width, 1.0/height, 1);
+    glScalef(zoom/win_width, zoom/win_height, 1);
+    glTranslatef(view_x, view_y, 0);
 }
 
-void render(void)
-{
+void resize(int width, int height) {
+    win_width = width;
+    win_height = height;
+    update();
+}
+
+int m_x = -1;
+int m_y = -1;
+void mouse(int button, int state, int x, int y) {
+    // Wheel reports as button 3(scroll up) and button 4(scroll down)
+    if ((button == 3) || (button == 4)) {
+        if (state == GLUT_UP) return; // Disregard redundant GLUT_UP events
+        if (button == 3) {
+            zoom *= 1.1;
+        } else {
+            zoom /= 1.1;
+        }
+        update();
+    } else if (button == 0) {
+        if (state == GLUT_DOWN) {
+            m_x = x;
+            m_y = y;
+        } else if (state == GLUT_UP) {
+            m_x = -1;
+            m_y = -1;
+        }
+    }
+}
+
+void mouseMotion(int x, int y) {
+    if (m_x != -1 && m_y != -1) {
+        view_x = view_x + (x - m_x)*2/zoom;
+        view_y = view_y + (m_y - y)*2/zoom;
+        m_x = x;
+        m_y = y;
+        update();
+    }
+}
+
+void mouseWheel(int button, int dir, int x, int y) {
+    //not working anymore in freeglut ?
+    if (dir > 0) {
+        zoom *= 1.1;
+    } else {
+        zoom /= 1.1;
+    }
+    update();
+}
+
+void render(void) {
     glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     auto sl  = point(-100,-100);
@@ -44,36 +99,33 @@ void render(void)
 
     a.render();
 
-    //TEXT
-    glMatrixMode( GL_PROJECTION ) ;
-    glPushMatrix() ; // save
-    glLoadIdentity();// and clear
-    glMatrixMode( GL_MODELVIEW ) ;
-    glPushMatrix() ;
-    glLoadIdentity() ;
 
     glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
 
-    glRasterPos2f( 0,0 ) ; // center of screen. (-1,0) is center left.
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glRasterPos2f( 0,0 );
     const char buf[] = "Oh hello";
     const char * p = buf ;
-    do glutBitmapCharacter( GLUT_BITMAP_HELVETICA_18, *p ); while( *(++p) ) ;
-
+    glPushMatrix();
+    glScalef(0.2,0.2,1); //font size
+    glLineWidth(50);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    do glutStrokeCharacter( GLUT_STROKE_ROMAN, *p ); while( *(++p) ) ; //GLUT_STROKE_MONO_ROMAN fix width
+    glPopMatrix();
+    p = buf ;
+    glPushMatrix();
+    glScalef(0.2,0.2,1); //font size
+    glLineWidth(2);
+    glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+    do glutStrokeCharacter( GLUT_STROKE_ROMAN, *p ); while( *(++p) ) ; //GLUT_STROKE_MONO_ROMAN fix width
+    glPopMatrix();
     glEnable( GL_DEPTH_TEST ) ; // Turn depth testing back on
-
-    glMatrixMode( GL_PROJECTION ) ;
-    glPopMatrix() ; // revert back to the matrix I had before.
-    glMatrixMode( GL_MODELVIEW ) ;
-    glPopMatrix() ;
 
     glutSwapBuffers();
     glutPostRedisplay();
 }
 
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     glutInit(&argc, argv);
     glutInitContextVersion(1, 4);
     glutInitWindowSize(800, 600);
@@ -81,6 +133,9 @@ int main(int argc, char* argv[])
     glutCreateWindow("game-of-life");
     glutReshapeFunc(resize);
     glutDisplayFunc(render);
+    glutMouseFunc(mouse);
+    glutMouseWheelFunc(mouseWheel);
+    glutMotionFunc(mouseMotion);
     glutMainLoop();
     return 0;
 }
