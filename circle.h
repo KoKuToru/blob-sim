@@ -25,6 +25,7 @@ class circle: public renderable
     private:
         point m_origin;
         float m_radius;
+        int   m_shift;
     public:
         circle(const point &origin = point(), float r = 0);
         circle& origin(const point &origin);
@@ -34,6 +35,8 @@ class circle: public renderable
         void render() const;
         ~circle() = default;
         line getLineSegment(int i) const;
+        void shift(int i);
+        int shift() const;
 };
 
 #endif // CIRCLE_H

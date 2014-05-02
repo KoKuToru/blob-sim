@@ -95,10 +95,14 @@ void render(void) {
     if (init) {
         init = false;
         test.attach(creature::LIMB, 0, 0, 50);
-        test.attach(creature::LIMB, 0, 1, 25);
-        test.attach(creature::LIMB, 1, 1, 15);
-        test.attach(creature::LIMB, 2, 0, 10);
-        test.attach(creature::LIMB, 2, 2, 10);
+        test.attach(creature::LIMB, 0, 4, 40);
+        test.attach(creature::LIMB, 1, 4, 30);
+        test.attach(creature::LIMB, 2, 3, 15);
+        test.attach(creature::LIMB, 2, 5, 15);
+        for(int j = 0; j < 5; ++j)
+        for(int i = 0; i < 9; ++i) {
+            test.attach(creature::SENSOR, j, i, 50/(1+j));
+        }
         test.update();
     }
     test.render();

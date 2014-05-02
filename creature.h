@@ -21,6 +21,8 @@ class creature
         std::vector<part> m_parts;
 
         std::vector<circle> m_body;
+        std::vector<line>   m_sensor;
+        void build();
     public:
         creature();
         void attach(part_type type, unsigned char root, unsigned char pos, unsigned char size);

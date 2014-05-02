@@ -20,7 +20,8 @@
 
 circle::circle(const point &origin, float r):
     m_origin(origin),
-    m_radius(r)
+    m_radius(r),
+    m_shift(0)
 {
 }
 
@@ -43,6 +44,9 @@ float circle::radius() const {
 }
 
 line circle::getLineSegment(int i) const {
+    i += m_shift;
+    i %= 8;
+
     //9 segments render
     constexpr float st[] = {
         0, //sin(0)
@@ -82,4 +86,12 @@ void circle::render() const {
     for(int i = 0; i < 8; ++i) {
         getLineSegment(i).render();
     }
+}
+
+void circle::shift(int i) {
+    m_shift = i;
+}
+
+int circle::shift() const {
+    return m_shift;
 }
