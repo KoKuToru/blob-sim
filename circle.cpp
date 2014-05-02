@@ -68,8 +68,8 @@ line circle::getLineSegment(int i) const {
         1
     };
 
-    auto a = point(st[i]*m_radius, ct[i]*m_radius);
-    auto b = point(st[i+1]*m_radius, ct[i+1]*m_radius);
+    auto a = point(m_origin.x() + st[i+0]*m_radius,m_origin.y() + ct[i+0]*m_radius);
+    auto b = point(m_origin.x() + st[i+1]*m_radius,m_origin.y() + ct[i+1]*m_radius);
     a.colorR(m_origin.colorR()).colorG(m_origin.colorG()).colorB(m_origin.colorB()).colorA(m_origin.colorA());
     b.colorR(m_origin.colorR()).colorG(m_origin.colorG()).colorB(m_origin.colorB()).colorA(m_origin.colorA());
 

@@ -19,7 +19,7 @@
 #include <GL/freeglut.h>
 
 #include "line.h"
-#include "circle.h"
+#include "creature.h"
 
 using namespace std;
 
@@ -89,16 +89,19 @@ void mouseWheel(int button, int dir, int x, int y) {
 void render(void) {
     glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    auto sl  = point(-100,-100);
-    sl.colorR(1);
-    line a(sl, point(100, 100));
 
-    circle cr(sl, 100);
-    cr.render();
-
-
-    a.render();
-
+    static creature test;
+    static bool init = true;
+    if (init) {
+        init = false;
+        test.attach(creature::LIMB, 0, 0, 50);
+        test.attach(creature::LIMB, 0, 1, 25);
+        test.attach(creature::LIMB, 1, 1, 15);
+        test.attach(creature::LIMB, 2, 0, 10);
+        test.attach(creature::LIMB, 2, 2, 10);
+        test.update();
+    }
+    test.render();
 
     glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
 
