@@ -7,11 +7,11 @@
 class text: public renderable
 {
 	private:
-		point* m_position;
+		point m_position;
 		const char* m_text;
 	public:
 		text(const char* text);
-		void setPosition(point* p);
+		void setPosition(point p);
 		~text() = default;
 		void render() const;
 };

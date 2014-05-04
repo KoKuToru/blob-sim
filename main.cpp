@@ -112,7 +112,7 @@ void render(void) {
     glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
 
 	static text t("test");
-	t.setPosition(new point(1,1));
+	t.setPosition(point(1,1));
 	t.render();
 
     glutSwapBuffers();
