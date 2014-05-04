@@ -1,10 +1,10 @@
 #include "text.h"
 
-text::text(std::string text){
+text::text(const std::string& text){
 	this->m_text = text;
 }
 
-void text::setPosition(point p){
+void text::setPosition(const point& p){
 	this->m_position = p;
 }
 

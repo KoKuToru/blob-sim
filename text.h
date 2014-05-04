@@ -11,8 +11,8 @@ class text: public renderable
 		point m_position;
 		std::string m_text;
 	public:
-		text(std::string text);
-		void setPosition(point p);
+		text(const std::string& text);
+		void setPosition(const point& p);
 		~text() = default;
 		void render() const;
 };
