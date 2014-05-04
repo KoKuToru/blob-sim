@@ -15,7 +15,7 @@ void text::render() const{
  	glTranslatef(this->m_position->x(), this->m_position->y(), this->m_position->layer());
 	glScalef(0.2,0.2,1); //font size
     glLineWidth(2);
-    glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+    glColor4f(colorR(), colorG(), colorB(), 1.0f);
     do glutStrokeCharacter( GLUT_STROKE_ROMAN, *p ); while( *(++p) ) ; //GLUT_STROKE_MONO_ROMAN fix width
     glPopMatrix();
 	glEnable( GL_DEPTH_TEST ) ; // Turn depth testing back on
