@@ -1,6 +1,6 @@
 #include "text.h"
 
-text::text(const char* text ){
+text::text(std::string text){
 	this->m_text = text;
 }
 
@@ -9,7 +9,7 @@ void text::setPosition(point p){
 }
 
 void text::render() const{
-	const char * p = this->m_text ;
+	const char * p = this->m_text.c_str();
 	glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
 	glPushMatrix();
 	glTranslatef(this->m_position.x(), this->m_position.y(), this->m_position.layer());

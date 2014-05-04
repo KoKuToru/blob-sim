@@ -3,14 +3,15 @@
 
 #include "renderable.h"
 #include "point.h"
+#include <string>
 
 class text: public renderable
 {
 	private:
 		point m_position;
-		const char* m_text;
+		std::string m_text;
 	public:
-		text(const char* text);
+		text(std::string text);
 		void setPosition(point p);
 		~text() = default;
 		void render() const;
