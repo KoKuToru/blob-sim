@@ -36,8 +36,8 @@ class line: public renderable
         void render() const;
         ~line() = default;
 
-        std::tuple<bool, float> interect(const line &other) const;
-        std::tuple<bool, float, int> interect(const circle& circle) const;
+        std::tuple<bool, float> intersect(const line &other) const;
+        std::tuple<bool, float, int> intersect(const circle& circle) const;
 };
 
 #endif // LINE_H
