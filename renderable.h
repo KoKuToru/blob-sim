@@ -18,6 +18,8 @@
 #ifndef RENDERABLE_H
 #define RENDERABLE_H
 
+#include <GL/freeglut.h>
+
 class renderable
 {
     protected:

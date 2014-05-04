@@ -21,6 +21,8 @@
 #include "line.h"
 #include "creature.h"
 
+#include "text.h"
+
 using namespace std;
 
 int win_width;
@@ -109,23 +111,9 @@ void render(void) {
 
     glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
 
-    glRasterPos2f( 0,0 );
-    const char buf[] = "Oh hello";
-    const char * p = buf ;
-    glPushMatrix();
-    glScalef(0.2,0.2,1); //font size
-    glLineWidth(50);
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    do glutStrokeCharacter( GLUT_STROKE_ROMAN, *p ); while( *(++p) ) ; //GLUT_STROKE_MONO_ROMAN fix width
-    glPopMatrix();
-    p = buf ;
-    glPushMatrix();
-    glScalef(0.2,0.2,1); //font size
-    glLineWidth(2);
-    glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
-    do glutStrokeCharacter( GLUT_STROKE_ROMAN, *p ); while( *(++p) ) ; //GLUT_STROKE_MONO_ROMAN fix width
-    glPopMatrix();
-    glEnable( GL_DEPTH_TEST ) ; // Turn depth testing back on
+	static text t("test");
+	t.setPosition(new point(1,1));
+	t.render();
 
     glutSwapBuffers();
     glutPostRedisplay();
