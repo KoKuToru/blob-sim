@@ -111,9 +111,9 @@ void render(void) {
 
     glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
 
-	static text t("test");
-	t.setPosition(point(1,1));
-	t.render();
+    static text t("test");
+    t.origin(point(1,1)).size(0.2).colorG(1);
+    t.render();
 
     glutSwapBuffers();
     glutPostRedisplay();
