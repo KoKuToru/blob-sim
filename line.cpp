@@ -53,7 +53,7 @@ void line::render() const {
     glEnd();
 }
 
-std::tuple<bool, float> line::interect(const line &other) const {
+std::tuple<bool, float> line::intersect(const line &other) const {
 
     //from http://stackoverflow.com/a/1968345
     double p0_x = m_origin.x();
@@ -86,10 +86,10 @@ std::tuple<bool, float> line::interect(const line &other) const {
     return std::make_tuple(false, 0.0f);
 }
 
-std::tuple<bool, float, int> line::interect(const circle& circle) const {
+std::tuple<bool, float, int> line::intersect(const circle& circle) const {
     std::tuple<bool, float, int> best = std::make_tuple(false, 0.0f, 0);
     for(int i = 0; i < 8; ++i) {
-        auto res = std::tuple_cat(interect(circle.getLineSegment(i)), std::make_tuple(i));
+        auto res = std::tuple_cat(intersect(circle.getLineSegment(i)), std::make_tuple(i));
         if (std::get<0>(best) == false) {
             best = res;
         } else if (std::get<1>(best) > std::get<1>(res)) {
