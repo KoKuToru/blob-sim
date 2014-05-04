@@ -22,6 +22,7 @@
 #include "creature.h"
 
 #include "text.h"
+#include <cmath>
 
 using namespace std;
 
@@ -31,6 +32,8 @@ int win_height;
 float view_x = 0;
 float view_y = 0;
 float zoom = 1.0;
+
+constexpr float MAX_ZOOM = 150.0f;
 
 void update() {
     glViewport(0, 0, win_width, win_height);
@@ -56,6 +59,7 @@ void mouse(int button, int state, int x, int y) {
         } else {
             zoom /= 1.1;
         }
+		zoom = min(MAX_ZOOM, zoom);
         update();
     } else if (button == 0) {
         if (state == GLUT_DOWN) {
