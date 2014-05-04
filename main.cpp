@@ -59,7 +59,7 @@ void mouse(int button, int state, int x, int y) {
         } else {
             zoom /= 1.1;
         }
-		zoom = min(MAX_ZOOM, zoom);
+        zoom = min(MAX_ZOOM, zoom);
         update();
     } else if (button == 0) {
         if (state == GLUT_DOWN) {
