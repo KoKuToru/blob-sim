@@ -12,16 +12,24 @@ window::window(const std::string& title, int w, int h):
         throw std::string("Can be only used once !");
     }
     s_instance = this;
-    glutInit(0, 0);
+    int argc = 1;
+    const char* argv[] = {"dummy"};
+    glutInit(&argc, (char**)argv);
     glutInitContextVersion(1, 4);
-    glutInitWindowSize(800, 600);
+    glutInitWindowSize(w, h);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
     glutCreateWindow("game-of-life");
     glutReshapeFunc([](int w, int h){
+        window::s_instance->m_width = w;
+        window::s_instance->m_height = h;
         window::s_instance->onResize(w, h);
     });
     glutDisplayFunc([](){
+        glClearColor(1,1,1,1);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         window::s_instance->onRender();
+        glutSwapBuffers();
+        glutPostRedisplay();
     });
     glutMouseFunc([](int button, int state, int x, int y) {
         if ((button == 3) || (button == 4)) {
