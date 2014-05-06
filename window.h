@@ -6,6 +6,7 @@
 class window
 {
     private:
+        friend class text_screen; //not so optimal
         int m_width;
         int m_height;
         static window* s_instance;

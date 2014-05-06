@@ -95,7 +95,7 @@ class gol: public window {
 
             static text_screen ts("test");
             static text t("test");
-            ts.origin(point(0,-0.8)).size(0.001).colorR(1);
+            ts.origin(point(10, 10)).size(1).colorR(1);
             t.origin(point(0,0)).size(0.2).colorB(1);
             ts.render();
             t.render();
