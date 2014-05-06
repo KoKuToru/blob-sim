@@ -23,111 +23,87 @@
 
 #include "text_screen.h"
 #include <cmath>
+#include "window.h"
 
 using namespace std;
 
-int win_width;
-int win_height;
-
-float view_x = 0;
-float view_y = 0;
-float zoom = 1.0;
-
 constexpr float MAX_ZOOM = 150.0f;
 
-void update() {
-    glViewport(0, 0, win_width, win_height);
-    glLoadIdentity();
-    glScalef(zoom/win_width, zoom/win_height, 1);
-    glTranslatef(view_x, view_y, 0);
-}
+class gol: public window {
+    private:
+        float m_view_x = 0.0, m_view_y = 0.0, m_zoom = 1.0;
+        int m_btn_x = -1, m_btn_y = -1;
 
-void resize(int width, int height) {
-    win_width = width;
-    win_height = height;
-    update();
-}
+    public:
+        gol(): window("game-of-life") {}
 
-int m_x = -1;
-int m_y = -1;
-void mouse(int button, int state, int x, int y) {
-    // Wheel reports as button 3(scroll up) and button 4(scroll down)
-    if ((button == 3) || (button == 4)) {
-        if (state == GLUT_UP) return; // Disregard redundant GLUT_UP events
-        if (button == 3) {
-            zoom *= 1.1;
-        } else {
-            zoom /= 1.1;
+        void onResize(int w, int h) {
+            glViewport(0, 0, w, h);
+            glLoadIdentity();
+            glScalef(m_zoom/w, m_zoom/h, 1);
+            glTranslatef(m_view_x, m_view_y, 0);
         }
-        zoom = min(MAX_ZOOM, zoom);
-        update();
-    } else if (button == 0) {
-        if (state == GLUT_DOWN) {
-            m_x = x;
-            m_y = y;
-        } else if (state == GLUT_UP) {
-            m_x = -1;
-            m_y = -1;
+        void onScroll(int dir) {
+            if (dir > 0) {
+                m_zoom *= 1.1;
+            } else {
+                m_zoom /= 1.1;
+            }
+            m_zoom = min(MAX_ZOOM, m_zoom);
+            onResize(width(), height());
         }
-    }
-}
-
-void mouseMotion(int x, int y) {
-    if (m_x != -1 && m_y != -1) {
-        view_x = view_x + (x - m_x)*2/zoom;
-        view_y = view_y + (m_y - y)*2/zoom;
-        m_x = x;
-        m_y = y;
-        update();
-    }
-}
-
-void render(void) {
-    glClearColor(1,1,1,1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    static creature test;
-    static bool init = true;
-    if (init) {
-        init = false;
-        test.attach(creature::LIMB, 0, 0, 50);
-        test.attach(creature::LIMB, 0, 4, 40);
-        test.attach(creature::LIMB, 1, 4, 30);
-        test.attach(creature::LIMB, 2, 3, 15);
-        test.attach(creature::LIMB, 2, 5, 15);
-        for(int j = 0; j < 5; ++j)
-        for(int i = 0; i < 9; ++i) {
-            test.attach(creature::SENSOR, j, i, 50/(1+j));
+        void onMouse(int btn, int state, int x, int y) {
+            if (btn == 0) {
+                if (state == GLUT_DOWN) {
+                    m_btn_x = x;
+                    m_btn_y = y;
+                } else if (state == GLUT_UP) {
+                    m_btn_x = -1;
+                    m_btn_y = -1;
+                }
+            }
         }
-        test.update();
-    }
-    test.render();
+        void onMouseMotion(int x, int y) {
+            if (m_btn_x != -1 && m_btn_y != -1) {
+                m_view_x = m_view_x + (x - m_btn_x)*2/m_zoom;
+                m_view_y = m_view_y + (m_btn_y - y)*2/m_zoom;
+                m_btn_x = x;
+                m_btn_y = y;
+                onResize(width(), height());
+            }
+        }
 
-    glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
+        void onRender() {
+            static creature test;
+            static bool init = true;
+            if (init) {
+                init = false;
+                test.attach(creature::LIMB, 0, 0, 50);
+                test.attach(creature::LIMB, 0, 4, 40);
+                test.attach(creature::LIMB, 1, 4, 30);
+                test.attach(creature::LIMB, 2, 3, 15);
+                test.attach(creature::LIMB, 2, 5, 15);
+                for(int j = 0; j < 5; ++j)
+                for(int i = 0; i < 9; ++i) {
+                    test.attach(creature::SENSOR, j, i, 50/(1+j));
+                }
+                test.update();
+            }
+            test.render();
 
-    static text_screen ts("test");
-    static text t("test");
-    ts.origin(point(0,-0.8)).size(0.001).colorR(1);
-    t.origin(point(0,0)).size(0.2).colorB(1);
-    ts.render();
-    t.render();
+            glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
 
-    glutSwapBuffers();
-    glutPostRedisplay();
-}
+            static text_screen ts("test");
+            static text t("test");
+            ts.origin(point(0,-0.8)).size(0.001).colorR(1);
+            t.origin(point(0,0)).size(0.2).colorB(1);
+            ts.render();
+            t.render();
+        }
+};
 
-
-int main(int argc, char* argv[]) {
-    glutInit(&argc, argv);
-    glutInitContextVersion(1, 4);
-    glutInitWindowSize(800, 600);
-    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-    glutCreateWindow("game-of-life");
-    glutReshapeFunc(resize);
-    glutDisplayFunc(render);
-    glutMouseFunc(mouse);
-    glutMotionFunc(mouseMotion);
-    glutMainLoop();
-    return 0;
+int main() {
+    gol main;
+    main.loop();
 }
 
