@@ -82,16 +82,6 @@ void mouseMotion(int x, int y) {
     }
 }
 
-void mouseWheel(int button, int dir, int x, int y) {
-    //not working anymore in freeglut ?
-    if (dir > 0) {
-        zoom *= 1.1;
-    } else {
-        zoom /= 1.1;
-    }
-    update();
-}
-
 void render(void) {
     glClearColor(1,1,1,1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -136,7 +126,6 @@ int main(int argc, char* argv[]) {
     glutReshapeFunc(resize);
     glutDisplayFunc(render);
     glutMouseFunc(mouse);
-    glutMouseWheelFunc(mouseWheel);
     glutMotionFunc(mouseMotion);
     glutMainLoop();
     return 0;
