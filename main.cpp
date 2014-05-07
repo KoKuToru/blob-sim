@@ -40,11 +40,14 @@ class gol: public window {
         point m_mouse_scene;
 
         int m_state = 0;
+        int m_split_line = 0;
         std::string m_status = "Press SPACE to enter edit mode";
 
         point screen2scene(const point& p) {
             return point((p.x()-width()/2)*2/m_zoom-m_view_x, (p.y()-height()/2)*(-2)/m_zoom-m_view_y);
         }
+
+        int m_best_line = -1;
 
     public:
         gol(): window("game-of-life") {}
@@ -76,6 +79,8 @@ class gol: public window {
                         m_lines.back().target(m_mouse_scene);
                         m_lines.push_back(line(m_mouse_scene, m_mouse_scene));
                     }
+                } else if (m_state == 2) {
+                    m_state = 0;
                 } else {
                     if (state == GLUT_DOWN) {
                         m_btn_x = x;
@@ -101,6 +106,10 @@ class gol: public window {
             if (m_state == 1 && !m_lines.empty()) {
                 m_lines.back().target(m_mouse_scene);
             }
+            if (m_state == 2) {
+                m_lines[m_best_line  ].target(m_mouse_scene);
+                m_lines[m_best_line+1].origin(m_mouse_scene);
+            }
         }
         void onKeyboard(int key) {
             std::cout << "got key: " << key << std::endl;
@@ -118,7 +127,21 @@ class gol: public window {
                             m_lines.push_back(line(m_lines.back().target(), m_lines.front().origin()));
                         }
                     }
+                case 8: //remove last
+                    if (m_state == 1) {
+                        if (!m_lines.empty()) {
+                            m_lines.pop_back();
+                        }
+                    }
                     break;
+                case 's': //split
+                    if (m_state == 0) {
+                        if (m_best_line >= 0) {
+                            m_state = 2;
+                            m_lines.insert(m_lines.begin()+m_best_line+1, line(m_mouse_scene, m_lines[m_best_line].target()));
+                            m_lines[m_best_line].target(m_mouse_scene);
+                        }
+                    }
             }
         }
 
@@ -137,6 +160,7 @@ class gol: public window {
                     best_point = p;
                 }
             }
+            m_best_line = best_line;
             int i = 0;
             for(line &l: m_lines) {
                 //render line
