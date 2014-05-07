@@ -38,6 +38,8 @@ class line: public renderable
 
         std::tuple<bool, float> intersect(const line &other) const;
         std::tuple<bool, float, int> intersect(const circle& circle) const;
+
+        std::tuple<float, point> distance(const point &p) const;
 };
 
 #endif // LINE_H

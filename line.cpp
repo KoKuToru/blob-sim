@@ -18,6 +18,7 @@
 #include "line.h"
 #include "circle.h"
 #include <GL/freeglut.h>
+#include <cmath>
 
 line::line(const point &origin, const point &target):
     m_origin(origin),
@@ -97,4 +98,34 @@ std::tuple<bool, float, int> line::intersect(const circle& circle) const {
         }
     }
     return best;
+}
+
+std::tuple<float, point> line::distance(const point &p) const {
+    float A = p.x() - origin().x();
+    float B = p.y() - origin().y();
+    float C = target().x() - origin().x();
+    float D = target().y() - origin().y();
+
+    float dot = A * C + B * D;
+    float len_sq = C * C + D * D;
+    float param = dot / len_sq;
+
+    float xx, yy;
+
+    if (param < 0 || (origin().x() == target().x() && origin().y() == origin().x())) {
+        xx = origin().x();
+        yy = origin().y();
+    }
+    else if (param > 1) {
+        xx = target().x();
+        yy = target().y();
+    }
+    else {
+        xx = origin().x() + param * C;
+        yy = origin().y() + param * D;
+    }
+
+    float dx = p.x() - xx;
+    float dy = p.y() - yy;
+    return std::make_tuple(sqrt(dx * dx + dy * dy), point(xx, yy));
 }

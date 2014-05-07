@@ -23,6 +23,7 @@
 
 #include "text_screen.h"
 #include <cmath>
+#include <limits>
 #include "window.h"
 
 using namespace std;
@@ -35,11 +36,11 @@ class gol: public window {
         int m_btn_x = -1, m_btn_y = -1;
 
         std::vector<line> m_lines;
-        int   m_nearest_line = -1;
-        point m_nearest_line_point;
+        point m_mouse;
+        point m_mouse_scene;
 
         int m_state = 0;
-        std::string m_status = "Press SPACE to enter mode";
+        std::string m_status = "Press SPACE to enter edit mode";
 
         point screen2scene(const point& p) {
             return point((p.x()-width()/2)*2/m_zoom-m_view_x, (p.y()-height()/2)*(-2)/m_zoom-m_view_y);
@@ -64,15 +65,16 @@ class gol: public window {
             onResize(width(), height());
         }
         void onMouse(int btn, int state, int x, int y) {
+            m_mouse = point(x, y);
+            m_mouse_scene = screen2scene(m_mouse);
+
             if (btn == 0) {
                 if (m_state == 1 && state == GLUT_DOWN) {
                     if (m_lines.empty()) {
-                        point tmp = screen2scene(point(x, y));
-                        m_lines.push_back(line(tmp, tmp));
+                        m_lines.push_back(line(m_mouse_scene, m_mouse_scene));
                     } else {
-                        point tmp = screen2scene(point(x, y));
-                        m_lines.back().target(tmp);
-                        m_lines.push_back(line(tmp, tmp));
+                        m_lines.back().target(m_mouse_scene);
+                        m_lines.push_back(line(m_mouse_scene, m_mouse_scene));
                     }
                 } else {
                     if (state == GLUT_DOWN) {
@@ -86,6 +88,9 @@ class gol: public window {
             }
         }
         void onMouseMotion(int x, int y) {
+            m_mouse = point(x, y);
+            m_mouse_scene = screen2scene(m_mouse);
+
             if (m_btn_x != -1 && m_btn_y != -1) {
                 m_view_x = m_view_x + (x - m_btn_x)*2/m_zoom;
                 m_view_y = m_view_y + (m_btn_y - y)*2/m_zoom;
@@ -94,8 +99,7 @@ class gol: public window {
                 onResize(width(), height());
             }
             if (m_state == 1 && !m_lines.empty()) {
-                point tmp = screen2scene(point(x, y));
-                m_lines.back().target(tmp);
+                m_lines.back().target(m_mouse_scene);
             }
         }
         void onKeyboard(int key) {
@@ -108,12 +112,32 @@ class gol: public window {
                 case 13: //stop adding points
                     m_state = 0;
                     m_status = "Press SPACE to enter edit mode";
-                    m_lines.pop_back();
+                    if (!m_lines.empty()) {
+                        m_lines.pop_back();
+                        if (!m_lines.empty()) {
+                            m_lines.push_back(line(m_lines.back().target(), m_lines.front().origin()));
+                        }
+                    }
                     break;
             }
         }
 
         void onRender() {
+            //update
+            int   best_line = -1;
+            float best_distance = std::numeric_limits<float>::infinity();
+            point best_point;
+            for(int i = 0; i < m_lines.size(); ++i) {
+                float dis;
+                point p;
+                std::tie(dis, p) = m_lines[i].distance(m_mouse_scene);
+                if (dis < best_distance) {
+                    best_distance = dis;
+                    best_line = i;
+                    best_point = p;
+                }
+            }
+            int i = 0;
             for(line &l: m_lines) {
                 //render line
                 l.render();
@@ -121,11 +145,8 @@ class gol: public window {
                 circle(l.origin(), 2).render();
                 circle(l.target(), 2).render();
             }
-            if (!m_lines.empty()) {
-                line(m_lines.back().target(), m_lines.front().origin()).render();
-            }
-            if (m_nearest_line >= 0) {
-                circle(m_nearest_line_point, 4).render();
+            if (best_line >= 0) {
+                circle(best_point, 4).render();
             }
 
             glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
