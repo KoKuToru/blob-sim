@@ -34,6 +34,16 @@ class gol: public window {
         float m_view_x = 0.0, m_view_y = 0.0, m_zoom = 1.0;
         int m_btn_x = -1, m_btn_y = -1;
 
+        std::vector<line> m_lines;
+        int   m_nearest_line = -1;
+        point m_nearest_line_point;
+
+        int m_state = 0;
+
+        point screen2scene(const point& p) {
+            return point((p.x()-width()/2)*2/m_zoom-m_view_x, (p.y()-height()/2)*(-2)/m_zoom-m_view_y);
+        }
+
     public:
         gol(): window("game-of-life") {}
 
@@ -54,12 +64,23 @@ class gol: public window {
         }
         void onMouse(int btn, int state, int x, int y) {
             if (btn == 0) {
-                if (state == GLUT_DOWN) {
-                    m_btn_x = x;
-                    m_btn_y = y;
-                } else if (state == GLUT_UP) {
-                    m_btn_x = -1;
-                    m_btn_y = -1;
+                if (m_state == 1 && state == GLUT_DOWN) {
+                    if (m_lines.empty()) {
+                        point tmp = screen2scene(point(x, y));
+                        m_lines.push_back(line(tmp, tmp));
+                    } else {
+                        point tmp = screen2scene(point(x, y));
+                        m_lines.back().target(tmp);
+                        m_lines.push_back(line(tmp, tmp));
+                    }
+                } else {
+                    if (state == GLUT_DOWN) {
+                        m_btn_x = x;
+                        m_btn_y = y;
+                    } else if (state == GLUT_UP) {
+                        m_btn_x = -1;
+                        m_btn_y = -1;
+                    }
                 }
             }
         }
@@ -71,37 +92,44 @@ class gol: public window {
                 m_btn_y = y;
                 onResize(width(), height());
             }
+            if (m_state == 1 && !m_lines.empty()) {
+                point tmp = screen2scene(point(x, y));
+                m_lines.back().target(tmp);
+            }
         }
         void onKeyboard(int key) {
-            (void)key;
+            std::cout << "got key: " << key << std::endl;
+            switch(key) {
+                case ' ': //start adding points
+                    m_state = 1;
+                    break;
+                case 13: //stop adding points
+                    m_state = 0;
+                    m_lines.pop_back();
+                    break;
+            }
         }
 
         void onRender() {
-            static creature test;
-            static bool init = true;
-            if (init) {
-                init = false;
-                test.attach(creature::LIMB, 0, 0, 50);
-                test.attach(creature::LIMB, 0, 4, 40);
-                test.attach(creature::LIMB, 1, 4, 30);
-                test.attach(creature::LIMB, 2, 3, 15);
-                test.attach(creature::LIMB, 2, 5, 15);
-                for(int j = 0; j < 5; ++j)
-                for(int i = 0; i < 9; ++i) {
-                    test.attach(creature::SENSOR, j, i, 50/(1+j));
-                }
-                test.update();
+            for(line &l: m_lines) {
+                //render line
+                l.render();
+                //render endpoints
+                circle(l.origin(), 2).render();
+                circle(l.target(), 2).render();
             }
-            test.render();
+            if (!m_lines.empty()) {
+                line(m_lines.back().target(), m_lines.front().origin()).render();
+            }
+            if (m_nearest_line >= 0) {
+                circle(m_nearest_line_point, 4).render();
+            }
 
             glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
 
-            static text_screen ts("test");
-            static text t("test");
-            ts.origin(point(10, 10)).size(1).colorR(1);
-            t.origin(point(0,0)).size(0.2).colorB(1);
+            static text_screen ts("Demo");
+            ts.origin(point(10, 10)).size(0.5).colorR(1);
             ts.render();
-            t.render();
         }
 };
 
