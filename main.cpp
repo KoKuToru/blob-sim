@@ -72,6 +72,9 @@ class gol: public window {
                 onResize(width(), height());
             }
         }
+        void onKeyboard(int key) {
+            (void)key;
+        }
 
         void onRender() {
             static creature test;

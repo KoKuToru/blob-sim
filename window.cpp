@@ -44,7 +44,10 @@ window::window(const std::string& title, int w, int h):
     glutMotionFunc([](int x, int y) {
         window::s_instance->onMouseMotion(x, y);
     });
-    glutKeyboardFunc()
+    glutKeyboardFunc([](unsigned char key, int x, int y) {
+        (void)x; (void)y;
+        window::s_instance->onKeyboard(key);
+    });
 }
 
 void window::loop() {

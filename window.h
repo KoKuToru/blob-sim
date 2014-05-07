@@ -19,6 +19,7 @@ class window
         virtual void onScroll(int dir) = 0;
         virtual void onMouse(int btn, int state, int x, int y) = 0;
         virtual void onMouseMotion(int x, int y) = 0;
+        virtual void onKeyboard(int key) = 0;
         void loop();
 
         int width() const;
