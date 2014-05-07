@@ -92,7 +92,7 @@ class gol: public window {
         point m_mouse_scene;
 
         int m_state = 0;
-        int m_split_line = 0;
+        int m_split_line = -1;
         std::string m_status = "Press SPACE to enter edit mode";
 
         point screen2scene(const point& p) {
@@ -159,8 +159,8 @@ class gol: public window {
                 m_lines.back().target(m_mouse_scene);
             }
             if (m_state == 2) {
-                m_lines[m_best_line  ].target(m_mouse_scene);
-                m_lines[m_best_line+1].origin(m_mouse_scene);
+                m_lines[m_split_line  ].target(m_mouse_scene);
+                m_lines[m_split_line+1].origin(m_mouse_scene);
             }
         }
         void onKeyboard(int key) {
@@ -190,8 +190,9 @@ class gol: public window {
                     if (m_state == 0) {
                         if (m_best_line >= 0) {
                             m_state = 2;
-                            m_lines.insert(m_lines.begin()+m_best_line+1, line(m_mouse_scene, m_lines[m_best_line].target()));
-                            m_lines[m_best_line].target(m_mouse_scene);
+                            m_split_line = m_best_line;
+                            m_lines.insert(m_lines.begin()+m_best_line+1, line(m_mouse_scene, m_lines[m_split_line].target()));
+                            m_lines[m_split_line].target(m_mouse_scene);
                         }
                     }
             }
