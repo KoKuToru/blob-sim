@@ -42,7 +42,6 @@ void text::render() const{
     glPushMatrix();
     glTranslatef(this->m_origin.x(), this->m_origin.y(), this->m_origin.layer());
     glScalef(m_size, m_size, 1); //font size
-    glLineWidth(2);
     glColor4f(colorR(), colorG(), colorB(), colorA());
     do glutStrokeCharacter( GLUT_STROKE_ROMAN, *p ); while( *(++p) ) ; //GLUT_STROKE_MONO_ROMAN fix width
     glPopMatrix();
