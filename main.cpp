@@ -28,6 +28,58 @@
 
 using namespace std;
 
+template<typename T>
+class enumerate_iter: public std::iterator<std::input_iterator_tag, std::pair<int, typename T::value_type &>> {
+    private:
+        size_t index = 0;
+        T      iter;
+    public:
+        enumerate_iter(size_t index, T iter): index(index), iter(iter) {}
+        enumerate_iter& operator++() {
+            ++iter;
+            ++index;
+            return *this;
+        }
+        enumerate_iter operator++(int) {
+            enumerate_iter tmp(*this);
+            operator++();
+            return tmp;
+        }
+        bool operator==(const enumerate_iter& rhs) {
+            return iter == rhs.iter;
+        }
+        bool operator!=(const enumerate_iter& rhs) {
+            return iter != rhs.iter;
+        }
+        std::pair<int, typename T::value_type &> operator*() {
+            return std::pair<int, typename T::value_type &>(index, *iter);
+        }
+};
+
+template<typename T>
+class enumerate_helper {
+    private:
+        enumerate_iter<T> m_begin;
+        enumerate_iter<T> m_end;
+    public:
+        enumerate_helper(size_t index_start, T begin_, size_t index_end, T end_): m_begin(index_start, begin_), m_end(index_end, end_) {
+
+        }
+        enumerate_iter<T> begin () const
+        {
+            return m_begin;
+        }
+
+        enumerate_iter<T> end () const
+        {
+            return m_end;
+        }
+};
+
+template<typename T> enumerate_helper<typename T::iterator> enumerate(T &o) {
+    return enumerate_helper<typename T::iterator>(0, o.begin(), o.size(), o.end());
+}
+
 constexpr float MAX_ZOOM = 150.0f;
 
 class gol: public window {
@@ -150,18 +202,17 @@ class gol: public window {
             int   best_line = -1;
             float best_distance = std::numeric_limits<float>::infinity();
             point best_point;
-            for(int i = 0; i < m_lines.size(); ++i) {
+            for(auto e: enumerate(m_lines)) {
                 float dis;
                 point p;
-                std::tie(dis, p) = m_lines[i].distance(m_mouse_scene);
+                std::tie(dis, p) = e.second.distance(m_mouse_scene);
                 if (dis < best_distance) {
                     best_distance = dis;
-                    best_line = i;
+                    best_line = e.first;
                     best_point = p;
                 }
             }
             m_best_line = best_line;
-            int i = 0;
             for(line &l: m_lines) {
                 //render line
                 l.render();
