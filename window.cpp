@@ -17,7 +17,7 @@ window::window(const std::string& title, int w, int h):
     glutInit(&argc, (char**)argv);
     glutInitContextVersion(1, 4);
     glutInitWindowSize(w, h);
-    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA | GLUT_MULTISAMPLE);
     glutCreateWindow(title.c_str());
     glutReshapeFunc([](int w, int h){
         window::s_instance->m_width = w;
