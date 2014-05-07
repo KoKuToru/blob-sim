@@ -39,6 +39,7 @@ class gol: public window {
         point m_nearest_line_point;
 
         int m_state = 0;
+        std::string m_status = "Press SPACE to enter mode";
 
         point screen2scene(const point& p) {
             return point((p.x()-width()/2)*2/m_zoom-m_view_x, (p.y()-height()/2)*(-2)/m_zoom-m_view_y);
@@ -101,10 +102,12 @@ class gol: public window {
             std::cout << "got key: " << key << std::endl;
             switch(key) {
                 case ' ': //start adding points
+                    m_status = "Press ENTER to stop edit mode";
                     m_state = 1;
                     break;
                 case 13: //stop adding points
                     m_state = 0;
+                    m_status = "Press SPACE to enter edit mode";
                     m_lines.pop_back();
                     break;
             }
@@ -127,9 +130,9 @@ class gol: public window {
 
             glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
 
-            static text_screen ts("Demo");
-            ts.origin(point(10, 10)).size(0.5).colorR(1);
-            ts.render();
+            text_screen text(m_status);
+            text.origin(point(10, 10)).size(0.2).colorR(1);
+            text.render();
         }
 };
 
