@@ -18,7 +18,7 @@ window::window(const std::string& title, int w, int h):
     glutInitContextVersion(1, 4);
     glutInitWindowSize(w, h);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-    glutCreateWindow("game-of-life");
+    glutCreateWindow(title.c_str());
     glutReshapeFunc([](int w, int h){
         window::s_instance->m_width = w;
         window::s_instance->m_height = h;
@@ -44,6 +44,7 @@ window::window(const std::string& title, int w, int h):
     glutMotionFunc([](int x, int y) {
         window::s_instance->onMouseMotion(x, y);
     });
+    glutKeyboardFunc()
 }
 
 void window::loop() {
