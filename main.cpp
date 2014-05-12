@@ -25,6 +25,7 @@
 #include <cmath>
 #include <limits>
 #include "window.h"
+#include "algorithm.h"
 
 using namespace std;
 
@@ -206,7 +207,7 @@ class gol: public window {
             for(auto e: enumerate(m_lines)) {
                 float dis;
                 point p;
-                std::tie(dis, p) = e.second.distance(m_mouse_scene);
+                std::tie(dis, p) = algorithm::distance(e.second, m_mouse_scene);
                 if (dis < best_distance) {
                     best_distance = dis;
                     best_line = e.first;
