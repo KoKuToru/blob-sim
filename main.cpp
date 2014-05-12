@@ -215,12 +215,21 @@ class gol: public window {
                 }
             }
             m_best_line = best_line;
+            line* last = &(m_lines.back());
             for(line &l: m_lines) {
                 //render line
                 l.render();
                 //render endpoints
                 circle(l.origin(), 2).render();
                 circle(l.target(), 2).render();
+                //angle
+                float alpha = algorithm::angle(*last, l);
+                //render
+                string alpha_text = to_string(180-alpha*360/(2*M_PI));
+                text txt(l.origin(), alpha_text, 0.3);
+                txt.colorB(1);
+                txt.render();
+                last = &l;
             }
             if (best_line >= 0) {
                 circle(best_point, 4).render();
