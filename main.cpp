@@ -200,6 +200,7 @@ class gol: public window {
         }
 
         void onRender() {
+            std::vector<point> points; //m_lines should be replaced with a list of points..
             //update
             int   best_line = -1;
             float best_distance = std::numeric_limits<float>::infinity();
@@ -217,6 +218,7 @@ class gol: public window {
             m_best_line = best_line;
             line* last = &(m_lines.back());
             for(line &l: m_lines) {
+                points.push_back(l.origin());
                 //render line
                 l.render();
                 //intersection test
@@ -245,7 +247,17 @@ class gol: public window {
                 circle(best_point, 4).render();
             }
 
-            glDisable( GL_DEPTH_TEST ) ; // also disable the depth test so renders on top
+            point center  = algorithm::center(points);
+            center.colorR(1).colorB(1);
+            circle(center,7).render();
+            text(center, "center" ,0.2).render();
+
+            point centroid = algorithm::centroid(points);
+            centroid.colorR(1).colorG(1);
+            circle(centroid,7).render();
+            text(centroid, "centroid" ,0.2).render();
+
+            text_screen(point(10, height()-20), "Area: "+std::to_string(algorithm::area(points)), 0.1).render();
 
             text_screen text(m_status);
             text.origin(point(10, 10)).size(0.2).colorR(1);
