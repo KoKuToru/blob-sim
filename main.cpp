@@ -219,6 +219,16 @@ class gol: public window {
             for(line &l: m_lines) {
                 //render line
                 l.render();
+                //intersection test
+                for(line &l2: m_lines) {
+                    if (&l == &l2) continue;
+                    bool res; point p;
+                    tie(res, p) = algorithm::intersect(l, l2);
+                    if (res) {
+                        p.colorR(1);
+                        circle(p, 5).render();
+                    }
+                }
                 //render endpoints
                 circle(l.origin(), 2).render();
                 circle(l.target(), 2).render();
