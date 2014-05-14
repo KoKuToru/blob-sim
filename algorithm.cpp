@@ -9,38 +9,46 @@ float algorithm::sign(float v) {
     return (v == 0)?0:((v > 0)?1:-1);
 }
 
-std::tuple<bool , point> algorithm::intersect(const line& a, const line& b) {
+std::tuple<bool , point> algorithm::intersect(const line& a, const line& b, bool both) {
     //check if side crosses ..
+    float b_before = algorithm::side(a, b.origin());
+    float b_after  = algorithm::side(a, b.target());
 
-
-    //from http://stackoverflow.com/a/1968345
-    double p0_x = a.origin().x();
-    double p0_y = a.origin().y();
-    double p1_x = a.target().x();
-    double p1_y = a.target().y();
-    double p2_x = b.origin().x();
-    double p2_y = b.origin().y();
-    double p3_x = b.target().x();
-    double p3_y = b.target().y();
-
-    double s1_x = p1_x - p0_x;
-    double s1_y = p1_y - p0_y;
-    double s2_x = p3_x - p2_x;
-    double s2_y = p3_y - p2_y;
-
-    if ((-s2_x * s1_y + s1_x * s2_y) == 0) {
-        return std::make_tuple(false, point());
+    //check if line changed side
+    if (b_before == b_after) {
+        if (both) {
+            float a_before = algorithm::side(b, a.origin());
+            float a_after  = algorithm::side(b, a.target());
+            if (a_before == a_after) {
+                return std::make_tuple(false, point());
+            }
+        } else {
+            return std::make_tuple(false, point());
+        }
     }
 
-    double s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
-    double t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+    //check if where a intersects b, we know we must intesect, because of side check
+    float x1_ = b.origin().x();
+    float y1_ = b.origin().y();
+    float x2_ = b.target().x();
+    float y2_ = b.target().y();
+    float x3_ = a.origin().x();
+    float y3_ = a.origin().y();
+    float x4_ = a.target().x();
+    float y4_ = a.target().y();
 
-    double w = 0.1;
-    if (s >= 0-w && s <= 1+w && t >= 0-w && t <= 1+w)
-    {
-        // Collision detected
-        return std::make_tuple(true, point(p0_x+t*s1_x, p0_y+t*s1_y)); //t or s ? need to be checked
+    float d = (((x2_ - x1_) * (y4_ - y3_)) - (y2_ - y1_) * (x4_ - x3_));
+    float r = (((y1_ - y3_) * (x4_ - x3_)) - (x1_ - x3_) * (y4_ - y3_)) / d;
+    float s = (((y1_ - y3_) * (x2_ - x1_)) - (x1_ - x3_) * (y2_ - y1_)) / d;
+
+    if (s >= 0 && s <= 1) { //distance from a.origin()
+        if (r >= 0 && r <= 1) { //distance from b.orgin()
+            float x = x1_ + r * (x2_ - x1_);
+            float y = y1_ + r * (y2_ - y1_);
+            return std::make_tuple(true, point(x, y));
+        }
     }
+
     return std::make_tuple(false, point());
 }
 
