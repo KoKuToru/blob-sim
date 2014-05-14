@@ -225,7 +225,7 @@ class gol: public window {
                 //angle
                 float alpha = algorithm::angle(*last, l);
                 //render
-                string alpha_text = to_string(180-alpha*360/(2*M_PI));
+                string alpha_text = to_string(/*180-*/alpha*360/(2*M_PI));
                 text txt(l.origin(), alpha_text, 0.3);
                 txt.colorB(1);
                 txt.render();

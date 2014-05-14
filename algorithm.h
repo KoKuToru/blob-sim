@@ -10,6 +10,8 @@ class algorithm
 {
     private:
         algorithm();
+        static float sign(float v);
+
     public:
         static std::tuple<bool , point> intersect(const line& a, const line& b);
         static std::tuple<float, point> distance(const line& a, const point &p);

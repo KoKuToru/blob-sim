@@ -5,6 +5,10 @@
 
 algorithm::algorithm() {}
 
+float algorithm::sign(float v) {
+    return (v == 0)?0:((v > 0)?1:-1);
+}
+
 std::tuple<bool , point> algorithm::intersect(const line& a, const line& b) {
     //from http://stackoverflow.com/a/1968345
     double p0_x = a.origin().x();
@@ -79,5 +83,8 @@ float algorithm::angle(const line &a, const line &b) {
     x2 /= s2;
     y2 /= s2;
     float dot = x1*x2 + y1*y2;
-    return acos(dot);
+    x2 = b.target().y() - a.origin().y();
+    y2 = b.target().x() - a.origin().x(); //x,y flipe => normal
+    float dot_n = x1*x2 - y1*y2;
+    return sign(dot_n)*acos(dot);
 }
