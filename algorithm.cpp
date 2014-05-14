@@ -10,6 +10,9 @@ float algorithm::sign(float v) {
 }
 
 std::tuple<bool , point> algorithm::intersect(const line& a, const line& b) {
+    //check if side crosses ..
+
+
     //from http://stackoverflow.com/a/1968345
     double p0_x = a.origin().x();
     double p0_y = a.origin().y();
@@ -71,6 +74,15 @@ std::tuple<float, point> algorithm::distance(const line& a, const point &p) {
     return std::make_tuple(sqrt(dx * dx + dy * dy), point(xx, yy));
 }
 
+float algorithm::side(const line &a, const point& p) {
+    float x1 = a.target().x() - a.origin().x();
+    float y1 = a.target().y() - a.origin().y();
+    float x2 = p.y() - a.origin().y();
+    float y2 = p.x() - a.origin().x(); //x,y flipe => normal
+    float dot_n = x1*x2 - y1*y2;
+    return sign(dot_n);
+}
+
 float algorithm::angle(const line &a, const line &b) {
     float x1 = a.target().x() - a.origin().x();
     float y1 = a.target().y() - a.origin().y();
@@ -83,8 +95,5 @@ float algorithm::angle(const line &a, const line &b) {
     x2 /= s2;
     y2 /= s2;
     float dot = x1*x2 + y1*y2;
-    x2 = b.target().y() - a.origin().y();
-    y2 = b.target().x() - a.origin().x(); //x,y flipe => normal
-    float dot_n = x1*x2 - y1*y2;
-    return sign(dot_n)*acos(dot);
+    return acos(dot);
 }

@@ -223,7 +223,7 @@ class gol: public window {
                 circle(l.origin(), 2).render();
                 circle(l.target(), 2).render();
                 //angle
-                float alpha = algorithm::angle(*last, l);
+                float alpha = algorithm::angle(*last, l)*algorithm::side(*last, l.target());
                 //render
                 string alpha_text = to_string(/*180-*/alpha*360/(2*M_PI));
                 text txt(l.origin(), alpha_text, 0.3);
