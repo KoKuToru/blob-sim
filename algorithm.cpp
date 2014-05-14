@@ -105,3 +105,44 @@ float algorithm::angle(const line &a, const line &b) {
     float dot = x1*x2 + y1*y2;
     return acos(dot);
 }
+
+point algorithm::center(const std::vector<point> &poly) {
+    float x = 0;
+    float y = 0;
+    for(auto &p: poly) {
+        x += p.x();
+        y += p.y();
+    }
+    x /= poly.size();
+    y /= poly.size();
+    return point(x, y);
+}
+
+point algorithm::centroid(const std::vector<point> &poly) {
+    float cx = 0;
+    float cy = 0;
+    float area2 = 0;
+    for (size_t i = 0; i < poly.size(); ++i) {
+        size_t i_next = (i+1)%poly.size();
+        float f = poly[i].x()*poly[i_next].y() - poly[i_next].x()*poly[i].y();
+        cx += (poly[i].x() + poly[i_next].x())*f;
+        cy += (poly[i].y() + poly[i_next].y())*f;
+        area2 += f;
+    }
+
+    //float A = algorithm::area(poly);
+    float A = 0.5*area2;
+    cx /= (6*A);
+    cy /= (6*A);
+    return point(cx, cy);
+}
+
+float algorithm::area(const std::vector<point> &poly) {
+    float area2 = 0;
+    for (size_t i = 0; i < poly.size(); ++i) {
+        size_t i_next = (i+1)%poly.size();
+        float f = poly[i].x()*poly[i_next].y() - poly[i_next].x()*poly[i].y();
+        area2 += f;
+    }
+    return 0.5*area2;
+}

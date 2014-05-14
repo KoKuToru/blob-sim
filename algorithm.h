@@ -1,6 +1,7 @@
 #ifndef ALGORITHM_H
 #define ALGORITHM_H
 #include <tuple>
+#include <vector>
 
 class line;
 class point;
@@ -17,6 +18,9 @@ class algorithm
         static std::tuple<float, point> distance(const line& a, const point &p);
         static float side(const line &a, const point& p);
         static float angle(const line &a, const line &b);
+        static point center(const std::vector<point> &poly);
+        static point centroid(const std::vector<point> &poly);
+        static float area(const std::vector<point> &poly);
 };
 
 #endif // ALGORITHM_H
