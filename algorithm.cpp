@@ -160,3 +160,17 @@ line algorithm::normal(const line &a) {
 
     return line(point(x_start, y_start), point(x_stop, y_stop));
 }
+
+static float perimeter(const std::vector<point> &poly) {
+    float res = 0;
+    for(size_t i = 0; i < poly.size(); ++i) {
+        size_t i_next = (i+1)%poly.size();
+        const point &a = poly[i];
+        const point &b = poly[i_next];
+        float x = b.x() - a.x();
+        float y = b.y() - a.y();
+        float s = sqrt(x*x+y*y);
+        res += s;
+    }
+    return res;
+}

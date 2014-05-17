@@ -22,6 +22,7 @@ class algorithm
         static point centroid(const std::vector<point> &poly);
         static float area(const std::vector<point> &poly);
         static line normal(const line &a);
+        static float perimeter(const std::vector<point> &poly);
 };
 
 #endif // ALGORITHM_H
