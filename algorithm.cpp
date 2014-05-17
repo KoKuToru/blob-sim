@@ -146,3 +146,17 @@ float algorithm::area(const std::vector<point> &poly) {
     }
     return 0.5*area2;
 }
+
+line algorithm::normal(const line &a) {
+    float x = a.target().x() - a.origin().x();
+    float y = a.target().y() - a.origin().y();
+
+    float s = sqrt(x*x+y*y);
+
+    float x_start = a.origin().x() + x/2;
+    float y_start = a.origin().y() + y/2;
+    float x_stop  = x_start - y/s *50;
+    float y_stop  = y_start + x/s *50; //x,y flipped !
+
+    return line(point(x_start, y_start), point(x_stop, y_stop));
+}

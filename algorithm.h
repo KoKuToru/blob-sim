@@ -21,6 +21,7 @@ class algorithm
         static point center(const std::vector<point> &poly);
         static point centroid(const std::vector<point> &poly);
         static float area(const std::vector<point> &poly);
+        static line normal(const line &a);
 };
 
 #endif // ALGORITHM_H
