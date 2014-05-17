@@ -103,6 +103,8 @@ class gol: public window {
 
         int m_best_line = -1;
 
+        point m_measure_start;
+        point m_measure_stop;
     public:
         gol(): window("game-of-life") {}
 
@@ -135,6 +137,10 @@ class gol: public window {
                     }
                 } else if (m_state == 2) {
                     m_state = 0;
+                } else if (m_state == 3) {
+                    m_measure_stop = m_mouse_scene;
+                    m_state = 0;
+                    m_status = "Press ENTER to stop edit mode";
                 } else {
                     if (state == GLUT_DOWN) {
                         m_btn_x = x;
@@ -149,6 +155,9 @@ class gol: public window {
         void onMouseMotion(int x, int y) {
             m_mouse = point(x, y);
             m_mouse_scene = screen2scene(m_mouse);
+            if (m_state == 3) {
+                m_measure_stop = m_mouse_scene;
+            }
 
             if (m_btn_x != -1 && m_btn_y != -1) {
                 m_view_x = m_view_x + (x - m_btn_x)*2/m_zoom;
@@ -171,6 +180,12 @@ class gol: public window {
                 case ' ': //start adding points
                     m_status = "Press ENTER to stop edit mode";
                     m_state = 1;
+                    break;
+                case 'm': //measure
+                    m_status = "Click to stop measure";
+                    m_measure_start = m_mouse_scene;
+                    m_measure_stop  = m_mouse_scene;
+                    m_state = 3;
                     break;
                 case 13: //stop adding points
                     m_state = 0;
@@ -283,11 +298,22 @@ class gol: public window {
             text.origin(point(10, 10)).size(0.2).colorR(1);
             text.render();
 
+            if (m_state == 3) {
+                line(m_measure_start, m_measure_stop).render();
+                circle(m_measure_start, 3).render();
+                circle(m_measure_stop, 3).render();
+            }
+
             float w = 0;
             float h = 0;
             std::tie(w, h) = algorithm::approximateWidthHeight(points);
             text = text_screen("Approximated Rect: " + std::to_string(w) + "x" + std::to_string(h));
             text.origin(point(10, 40)).size(0.2).colorR(1);
+            text.render();
+
+            float s = algorithm::distance(m_measure_start, m_measure_stop);
+            text = text_screen("Measured: " + std::to_string(s));
+            text.origin(point(10, 70)).size(0.2).colorR(1);
             text.render();
         }
 };
