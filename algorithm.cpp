@@ -161,7 +161,7 @@ line algorithm::normal(const line &a) {
     return line(point(x_start, y_start), point(x_stop, y_stop));
 }
 
-static float perimeter(const std::vector<point> &poly) {
+float algorithm::perimeter(const std::vector<point> &poly) {
     float res = 0;
     for(size_t i = 0; i < poly.size(); ++i) {
         size_t i_next = (i+1)%poly.size();
@@ -173,4 +173,25 @@ static float perimeter(const std::vector<point> &poly) {
         res += s;
     }
     return res;
+}
+
+std::tuple<float, float> algorithm::approximateWidthHeight(const std::vector<point> &poly) {
+    float A = algorithm::area(poly);
+    float U = algorithm::perimeter(poly);
+
+    /*
+     Annahme das es ungefähr Rechteckig ist
+
+     A = a*b
+     U = 2*(a+b)
+
+     Wolfram Alpha:
+      Solve[(A = a*b, U = 2*(a+b)), (a,b)]
+
+     Result:
+    */
+    float a = 1.0f/4.0f*(U - sqrt(U*U - 16.0f*A));
+    float b = 1.0f/4.0f*(sqrt(U*U - 16.0f*A) + U);
+
+    return std::make_tuple(a, b);
 }

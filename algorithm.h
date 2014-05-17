@@ -23,6 +23,7 @@ class algorithm
         static float area(const std::vector<point> &poly);
         static line normal(const line &a);
         static float perimeter(const std::vector<point> &poly);
+        static std::tuple<float, float> approximateWidthHeight(const std::vector<point> &poly);
 };
 
 #endif // ALGORITHM_H
