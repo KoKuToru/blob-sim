@@ -167,10 +167,7 @@ float algorithm::perimeter(const std::vector<point> &poly) {
         size_t i_next = (i+1)%poly.size();
         const point &a = poly[i];
         const point &b = poly[i_next];
-        float x = b.x() - a.x();
-        float y = b.y() - a.y();
-        float s = sqrt(x*x+y*y);
-        res += s;
+        res += algorithm::distance(a, b);
     }
     return res;
 }
@@ -194,4 +191,11 @@ std::tuple<float, float> algorithm::approximateWidthHeight(const std::vector<poi
     float b = 1.0f/4.0f*(sqrt(U*U - 16.0f*A) + U);
 
     return std::make_tuple(a, b);
+}
+
+float algorithm::distance(const point& a, const point& b) {
+    float x = b.x() - a.x();
+    float y = b.y() - a.y();
+    float s = sqrt(x*x+y*y);
+    return s;
 }
