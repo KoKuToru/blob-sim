@@ -26,6 +26,7 @@
 #include <limits>
 #include "window.h"
 #include "algorithm.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -217,6 +218,8 @@ class gol: public window {
             }
             m_best_line = best_line;
             line* last = &(m_lines.back());
+            static vector<float> stats;
+            stats.clear();
             for(line &l: m_lines) {
                 points.push_back(l.origin());
                 //render line
@@ -238,9 +241,26 @@ class gol: public window {
                 float alpha = algorithm::angle(*last, l)*algorithm::side(*last, l.target());
                 //render
                 string alpha_text = to_string(/*180-*/alpha*360/(2*M_PI));
-                text txt(l.origin(), alpha_text, 0.3);
+                text txt(l.origin(), alpha_text, 0.15);
                 txt.colorB(1);
                 txt.render();
+
+                //normal
+                line n = algorithm::normal(l);
+                n.colorR(1);
+                n.render();
+
+                /*iterate normal*/
+                float dx = n.target().x() - n.origin().x();
+                float dy = n.target().y() - n.origin().y();
+                dx *= 200;
+                dy *= 200;
+                float sx = l.target().x() - l.origin().x();
+                float sy = l.target().y() - l.origin().y();
+                float s = sqrt(sx*sx + sy*sy);
+
+                text(n.origin(), "len="+std::to_string(s), 0.1).render();
+
                 last = &l;
             }
             if (best_line >= 0) {
@@ -261,6 +281,13 @@ class gol: public window {
 
             text_screen text(m_status);
             text.origin(point(10, 10)).size(0.2).colorR(1);
+            text.render();
+
+            float w = 0;
+            float h = 0;
+            std::tie(w, h) = algorithm::approximateWidthHeight(points);
+            text = text_screen("Approximated Rect: " + std::to_string(w) + "x" + std::to_string(h));
+            text.origin(point(10, 40)).size(0.2).colorR(1);
             text.render();
         }
 };
