@@ -155,8 +155,8 @@ line algorithm::normal(const line &a) {
 
     float x_start = a.origin().x() + x/2;
     float y_start = a.origin().y() + y/2;
-    float x_stop  = x_start - y/s *50;
-    float y_stop  = y_start + x/s *50; //x,y flipped !
+    float x_stop  = x_start - y/s;
+    float y_stop  = y_start + x/s; //x,y flipped !
 
     return line(point(x_start, y_start), point(x_stop, y_stop));
 }

@@ -94,17 +94,11 @@ class gol: public window {
         point m_mouse_scene;
 
         int m_state = 0;
-        int m_split_line = -1;
-        std::string m_status = "Press SPACE to enter edit mode";
 
         point screen2scene(const point& p) {
             return point((p.x()-width()/2)*2/m_zoom-m_view_x, (p.y()-height()/2)*(-2)/m_zoom-m_view_y);
         }
 
-        int m_best_line = -1;
-
-        point m_measure_start;
-        point m_measure_stop;
     public:
         gol(): window("game-of-life") {}
 
@@ -128,36 +122,18 @@ class gol: public window {
             m_mouse_scene = screen2scene(m_mouse);
 
             if (btn == 0) {
-                if (m_state == 1 && state == GLUT_DOWN) {
-                    if (m_lines.empty()) {
-                        m_lines.push_back(line(m_mouse_scene, m_mouse_scene));
-                    } else {
-                        m_lines.back().target(m_mouse_scene);
-                        m_lines.push_back(line(m_mouse_scene, m_mouse_scene));
-                    }
-                } else if (m_state == 2) {
-                    m_state = 0;
-                } else if (m_state == 3) {
-                    m_measure_stop = m_mouse_scene;
-                    m_state = 0;
-                    m_status = "Press ENTER to stop edit mode";
-                } else {
-                    if (state == GLUT_DOWN) {
-                        m_btn_x = x;
-                        m_btn_y = y;
-                    } else if (state == GLUT_UP) {
-                        m_btn_x = -1;
-                        m_btn_y = -1;
-                    }
+                if (state == GLUT_DOWN) {
+                    m_btn_x = x;
+                    m_btn_y = y;
+                } else if (state == GLUT_UP) {
+                    m_btn_x = -1;
+                    m_btn_y = -1;
                 }
             }
         }
         void onMouseMotion(int x, int y) {
             m_mouse = point(x, y);
             m_mouse_scene = screen2scene(m_mouse);
-            if (m_state == 3) {
-                m_measure_stop = m_mouse_scene;
-            }
 
             if (m_btn_x != -1 && m_btn_y != -1) {
                 m_view_x = m_view_x + (x - m_btn_x)*2/m_zoom;
@@ -166,155 +142,15 @@ class gol: public window {
                 m_btn_y = y;
                 onResize(width(), height());
             }
-            if (m_state == 1 && !m_lines.empty()) {
-                m_lines.back().target(m_mouse_scene);
-            }
-            if (m_state == 2) {
-                m_lines[m_split_line  ].target(m_mouse_scene);
-                m_lines[m_split_line+1].origin(m_mouse_scene);
-            }
         }
         void onKeyboard(int key) {
             std::cout << "got key: " << key << std::endl;
-            switch(key) {
-                case ' ': //start adding points
-                    m_status = "Press ENTER to stop edit mode";
-                    m_state = 1;
-                    break;
-                case 'm': //measure
-                    m_status = "Click to stop measure";
-                    m_measure_start = m_mouse_scene;
-                    m_measure_stop  = m_mouse_scene;
-                    m_state = 3;
-                    break;
-                case 13: //stop adding points
-                    m_state = 0;
-                    m_status = "Press SPACE to enter edit mode";
-                    if (!m_lines.empty()) {
-                        m_lines.pop_back();
-                        if (!m_lines.empty()) {
-                            m_lines.push_back(line(m_lines.back().target(), m_lines.front().origin()));
-                        }
-                    }
-                case 8: //remove last
-                    if (m_state == 1) {
-                        if (!m_lines.empty()) {
-                            m_lines.pop_back();
-                        }
-                    }
-                    break;
-                case 's': //split
-                    if (m_state == 0) {
-                        if (m_best_line >= 0) {
-                            m_state = 2;
-                            m_split_line = m_best_line;
-                            m_lines.insert(m_lines.begin()+m_best_line+1, line(m_mouse_scene, m_lines[m_split_line].target()));
-                            m_lines[m_split_line].target(m_mouse_scene);
-                        }
-                    }
-            }
         }
 
         void onRender() {
-            std::vector<point> points; //m_lines should be replaced with a list of points..
-            //update
-            int   best_line = -1;
-            float best_distance = std::numeric_limits<float>::infinity();
-            point best_point;
-            for(auto e: enumerate(m_lines)) {
-                float dis;
-                point p;
-                std::tie(dis, p) = algorithm::distance(e.second, m_mouse_scene);
-                if (dis < best_distance) {
-                    best_distance = dis;
-                    best_line = e.first;
-                    best_point = p;
-                }
-            }
-            m_best_line = best_line;
-            line* last = &(m_lines.back());
-            static vector<float> stats;
-            stats.clear();
-            for(line &l: m_lines) {
-                points.push_back(l.origin());
-                //render line
-                l.render();
-                //intersection test
-                for(line &l2: m_lines) {
-                    if (&l == &l2) continue;
-                    bool res; point p;
-                    tie(res, p) = algorithm::intersect(l, l2);
-                    if (res) {
-                        p.colorR(1);
-                        circle(p, 5).render();
-                    }
-                }
-                //render endpoints
-                circle(l.origin(), 2).render();
-                circle(l.target(), 2).render();
-                //angle
-                float alpha = algorithm::angle(*last, l)*algorithm::side(*last, l.target());
-                //render
-                string alpha_text = to_string(/*180-*/alpha*360/(2*M_PI));
-                text txt(l.origin(), alpha_text, 0.15);
-                txt.colorB(1);
-                txt.render();
-
-                //normal
-                line n = algorithm::normal(l);
-                n.colorR(1);
-                n.render();
-
-                /*iterate normal*/
-                float dx = n.target().x() - n.origin().x();
-                float dy = n.target().y() - n.origin().y();
-                dx *= 200;
-                dy *= 200;
-                float sx = l.target().x() - l.origin().x();
-                float sy = l.target().y() - l.origin().y();
-                float s = sqrt(sx*sx + sy*sy);
-
-                text(n.origin(), "len="+std::to_string(s), 0.1).render();
-
-                last = &l;
-            }
-            if (best_line >= 0) {
-                circle(best_point, 4).render();
-            }
-
-            point center  = algorithm::center(points);
-            center.colorR(1).colorB(1);
-            circle(center,7).render();
-            text(center, "center" ,0.2).render();
-
-            point centroid = algorithm::centroid(points);
-            centroid.colorR(1).colorG(1);
-            circle(centroid,7).render();
-            text(centroid, "centroid" ,0.2).render();
-
-            text_screen(point(10, height()-20), "Area: "+std::to_string(algorithm::area(points)), 0.1).render();
-
-            text_screen text(m_status);
-            text.origin(point(10, 10)).size(0.2).colorR(1);
-            text.render();
-
-            if (m_state == 3) {
-                line(m_measure_start, m_measure_stop).render();
-                circle(m_measure_start, 3).render();
-                circle(m_measure_stop, 3).render();
-            }
-
-            float w = 0;
-            float h = 0;
-            std::tie(w, h) = algorithm::approximateWidthHeight(points);
-            text = text_screen("Approximated Rect: " + std::to_string(w) + "x" + std::to_string(h));
-            text.origin(point(10, 40)).size(0.2).colorR(1);
-            text.render();
-
-            float s = algorithm::distance(m_measure_start, m_measure_stop);
-            text = text_screen("Measured: " + std::to_string(s));
-            text.origin(point(10, 70)).size(0.2).colorR(1);
-            text.render();
+            static creature test;
+            test.update();
+            test.render();
         }
 };
 

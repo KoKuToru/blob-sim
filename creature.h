@@ -2,7 +2,7 @@
 #define CREATURE_H
 #include <map>
 #include <vector>
-#include "circle.h"
+#include "point.h"
 class creature
 {
     public:
@@ -10,22 +10,24 @@ class creature
             LIMB,
             SENSOR
         };
+
     private:
-        struct part {
-                part_type type;
-                unsigned char root;
-                unsigned char pos;
-                unsigned char len;
+        std::vector<point> hull;
+        std::vector<float> hull_length;
+
+        struct Muscle {
+            int from;
+            int to;
+            float length;
+            float active;
         };
 
-        std::vector<part> m_parts;
+        std::vector<Muscle> muscle;
+        float mass;
 
-        std::vector<circle> m_body;
-        std::vector<line>   m_sensor;
-        void build();
     public:
         creature();
-        void attach(part_type type, unsigned char root, unsigned char pos, unsigned char size);
+
         void update();
         void render() const ;
 };
