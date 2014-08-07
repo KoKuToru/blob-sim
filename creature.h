@@ -14,6 +14,7 @@ class creature
     private:
         std::vector<point> hull;
         std::vector<float> hull_length;
+        std::vector<float> hull_force;
 
         struct Muscle {
             int from;
@@ -24,6 +25,9 @@ class creature
 
         std::vector<Muscle> muscle;
         float mass;
+
+        point global;
+        point gloabl_motion;
 
     public:
         creature();

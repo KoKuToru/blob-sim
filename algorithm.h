@@ -21,7 +21,7 @@ class algorithm
         static point center(const std::vector<point> &poly);
         static point centroid(const std::vector<point> &poly);
         static float area(const std::vector<point> &poly);
-        static line normal(const line &a);
+        static line normal(const line &a, float scale=1);
         static float perimeter(const std::vector<point> &poly);
         static std::tuple<float, float> approximateWidthHeight(const std::vector<point> &poly);
         static float distance(const point& a, const point& b);
