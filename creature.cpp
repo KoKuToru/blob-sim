@@ -133,7 +133,9 @@ void creature::update() {
 
 
     //caluclate global movment: (thats probably not physically correct)
-    point m;
+    point &m = motion;
+    m.x(0);
+    m.y(0);
     hull_force.clear();
     for(int i = 0, j = hull.size()-1; i < hull.size(); j = i++) {
         const point &pa = old_hull[j];
@@ -156,7 +158,7 @@ void creature::update() {
         float area = algorithm::area(poly);
 
         //more area -> more force
-        float force = area*0.1;
+        float force = area*0.04;
 
         force = -force; //move against normal
         m.x(m.x()+force*nv.x());
@@ -241,7 +243,7 @@ void creature::render() const {
         circle(render_hull[i], 8).render();
         line l(render_hull[j], render_hull[i]);
         l.render();
-        line n = algorithm::normal(l, hull_force[i]*10);
+        line n = algorithm::normal(l, hull_force[i]*50);
         n.colorR(1);
         n.render();
     }
@@ -258,4 +260,6 @@ void creature::render() const {
     auto c = circle(centroid, 16);
     c.colorR(1);
     c.render();
+
+    line(global, point(global.x()+motion.x()*50, global.y()+motion.y()*50)).render();
 }

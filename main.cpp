@@ -149,7 +149,7 @@ class gol: public window {
 
         void onRender() {
             static creature test;
-            test.update();
+            for(int i = 0; i < 10; ++i) test.update();
             test.render();
         }
 };

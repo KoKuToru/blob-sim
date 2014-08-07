@@ -15,6 +15,7 @@ class creature
         std::vector<point> hull;
         std::vector<float> hull_length;
         std::vector<float> hull_force;
+        point motion;
 
         struct Muscle {
             int from;
