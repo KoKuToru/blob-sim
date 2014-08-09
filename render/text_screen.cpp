@@ -15,13 +15,14 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
+#include "text_screen.h"
+#include "window.h"
 
-#include "gol.h"
-
-using namespace std;
-
-int main() {
-    gol main;
-    main.loop();
+void text_screen::render(){
+    glPushMatrix();
+    glLoadIdentity();
+    glScalef(2.0/window::s_instance->m_width, 2.0/window::s_instance->m_height, 1);
+    glTranslatef(-window::s_instance->m_width/2.0, -window::s_instance->m_height/2.0, 0);
+    text::render();
+    glPopMatrix();
 }
-

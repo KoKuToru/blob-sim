@@ -15,13 +15,30 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
+#ifndef TEXT_H
+#define TEXT_H
 
-#include "gol.h"
+#include "renderable.h"
+#include "point.h"
+#include <string>
 
-using namespace std;
+class text: public renderable
+{
+    private:
+        point       m_origin;
+        std::string m_text;
+        float       m_size;
+    public:
+        text(const std::string& message=std::string(), float size=1);
+        text(const point &origin_, const std::string &message=std::string(), float size=1);
+        text& origin(const point& origin_);
+        const point& origin() const;
+        text& size(float size_);
+        float size() const;
+        text& message(std::string& text);
+        const std::string& message() const;
+        ~text() = default;
+        void render() const;
+};
 
-int main() {
-    gol main;
-    main.loop();
-}
-
+#endif // TEXT_H

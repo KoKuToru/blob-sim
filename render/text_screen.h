@@ -15,13 +15,17 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
+#ifndef TEXT_SCREEN_H
+#define TEXT_SCREEN_H
 
-#include "gol.h"
+#include "renderable.h"
+#include "text.h"
 
-using namespace std;
+class text_screen: public text
+{
+    public:
+        using text::text;
+        void render(); //override
+};
 
-int main() {
-    gol main;
-    main.loop();
-}
-
+#endif // TEXT_SCREEN_H

@@ -1,48 +1,43 @@
+/**
+    game-of-life
+    Copyright (C) 2014  Luca Béla Palkovics <luca.bela.palkovics@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
 #include "creature.h"
-#include "circle.h"
+#include "../render/circle.h"
 #include <cmath>
 #include <iostream>
-#include "algorithm.h"
+#include "../algorithm/algorithm.h"
 
 constexpr float spring_factor = 0.234;
 constexpr float spring_factor_mass = 0.4/700;
 constexpr float spring_factor_muscle = spring_factor/5.0;
 constexpr float friction = 0.01;
 
-creature::creature()
-{
-    //for now static
-    int points = 8;
-    int size = 256;
-    for(int i = 0; i < points; ++i) {
-        float x = sin(-2*i*M_PI/points)*size;
-        float y = cos(-2*i*M_PI/points)*size;
-        hull.push_back(point(x, y));
-    }
+void creature::init() {
+    mass = algorithm::area(hull);
+
     auto p_last = hull.back();
     for(auto p : hull) {
         hull_length.push_back(algorithm::distance(p_last, p)/2.0);
         p_last = p;
     }
 
-    mass = algorithm::area(hull);
-
-    float d = algorithm::distance(hull[0], hull[1]);
-    muscle.push_back(Muscle{
-                         0,
-                         4,
-                         d,
-                         0});
-    muscle.push_back(Muscle{
-                         2,
-                         3,
-                         d,
-                         0});
-}
-
-int mod(int v, int s) {
-    while(v < 0) v += s;
-    return v % s;
+    for(auto &mu : muscle) {
+        mu.length = algorithm::distance(hull.at(mu.from), hull.at(mu.to))/1.5;
+    }
 }
 
 /*
@@ -158,7 +153,7 @@ void creature::update() {
         float area = algorithm::area(poly);
 
         //more area -> more force
-        float force = area*0.04;
+        float force = area*0.15;
 
         force = -force; //move against normal
         m.x(m.x()+force*nv.x());
@@ -187,40 +182,6 @@ void creature::update() {
     global.x(global.x()+m.x()/hull.size());
     global.y(global.y()+m.y()/hull.size());
     */
-
-    //update ai:
-    static int f = 0;
-
-    /*switch((f/10)%5) {
-        case 0:
-            muscle[0].active = 0;
-            muscle[1].active = 0;
-            muscle[2].active = -3;
-            muscle[3].active = 0;
-            muscle[4].active = 0;
-            break;
-        case 1:
-            muscle[0].active = -3;
-            break;
-        case 2:
-            muscle[3].active = -2;
-            muscle[4].active = -2;
-            break;
-        case 3:
-            muscle[1].active = 3;
-            break;
-        case 4:
-            muscle[0].active = 3;
-            muscle[2].active = 3;
-            muscle[1].active = 0;
-            break;
-    }*/
-
-    muscle[0].active = 3*cos(f/100.0);
-    muscle[1].active = -3*cos(f/100.0);
-
-
-    f += 1;
 }
 
 void creature::render() const {
@@ -243,7 +204,7 @@ void creature::render() const {
         circle(render_hull[i], 8).render();
         line l(render_hull[j], render_hull[i]);
         l.render();
-        line n = algorithm::normal(l, hull_force[i]*50);
+        line n = algorithm::normal(l, hull_force[i]*5);
         n.colorR(1);
         n.render();
     }
@@ -261,5 +222,5 @@ void creature::render() const {
     c.colorR(1);
     c.render();
 
-    line(global, point(global.x()+motion.x()*50, global.y()+motion.y()*50)).render();
+    line(global, point(global.x()+motion.x()*5, global.y()+motion.y()*5)).render();
 }

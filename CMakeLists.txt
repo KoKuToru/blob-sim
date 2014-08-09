@@ -1,7 +1,10 @@
 project(game-of-life)
 cmake_minimum_required(VERSION 2.8)
-aux_source_directory(. SRC_LIST)
-add_executable(${PROJECT_NAME} ${SRC_LIST})
+aux_source_directory(. SRC_LIST1)
+aux_source_directory(./algorithm SRC_LIST2)
+aux_source_directory(./creature SRC_LIST3)
+aux_source_directory(./render SRC_LIST4)
+add_executable(${PROJECT_NAME} ${SRC_LIST1} ${SRC_LIST2} ${SRC_LIST3} ${SRC_LIST4})
 
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)

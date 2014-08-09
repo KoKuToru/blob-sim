@@ -15,13 +15,45 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
+#ifndef CREATURE_H
+#define CREATURE_H
+#include <map>
+#include <vector>
+#include "../render/point.h"
+class creature
+{
+    public:
+        enum part_type: unsigned char {
+            LIMB,
+            SENSOR
+        };
 
-#include "gol.h"
+    protected:
+        std::vector<point> hull;
+        std::vector<float> hull_length;
+        std::vector<float> hull_force;
+        point motion;
 
-using namespace std;
+        struct Muscle {
+            int from;
+            int to;
+            float length;
+            float active;
+        };
 
-int main() {
-    gol main;
-    main.loop();
-}
+        std::vector<Muscle> muscle;
+        float mass;
 
+        point global;
+        point gloabl_motion;
+
+    public:
+
+        void init();
+
+        virtual void update();
+
+        void render() const ;
+};
+
+#endif // CREATURE_H

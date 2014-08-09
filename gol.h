@@ -15,13 +15,36 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
+#ifndef GOL_H
+#define GOL_H
 
-#include "gol.h"
+#include "render/window.h"
+#include "render/point.h"
+#include <vector>
 
-using namespace std;
+constexpr float MAX_ZOOM = 150.0f;
 
-int main() {
-    gol main;
-    main.loop();
-}
+class gol: public window {
+    private:
+        float m_view_x = 0.0, m_view_y = 0.0, m_zoom = 1.0;
+        int m_btn_x = -1, m_btn_y = -1;
 
+        point m_mouse;
+        point m_mouse_scene;
+
+        int m_state = 0;
+
+        point screen2scene(const point& p);
+
+    public:
+        gol();
+
+        void onResize(int w, int h);
+        void onScroll(int dir);
+        void onMouse(int btn, int state, int x, int y);
+        void onMouseMotion(int x, int y);
+        void onKeyboard(int key);
+        void onRender();
+};
+
+#endif // GOL_H

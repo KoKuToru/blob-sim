@@ -15,13 +15,15 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
+#ifndef DEMO_CREATURE_H
+#define DEMO_CREATURE_H
+#include "creature/creature.h"
+class demo_creature : public creature
+{
+    public:
+        demo_creature();
 
-#include "gol.h"
+        void update();
+};
 
-using namespace std;
-
-int main() {
-    gol main;
-    main.loop();
-}
-
+#endif // DEMO_CREATURE_H

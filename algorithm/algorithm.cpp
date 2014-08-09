@@ -1,6 +1,6 @@
-#include "algorithm.h"
-#include "line.h"
-#include "point.h"
+#include "../algorithm/algorithm.h"
+#include "../render/line.h"
+#include "../render/point.h"
 #include <cmath>
 
 algorithm::algorithm() {}
