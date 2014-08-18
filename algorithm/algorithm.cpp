@@ -103,6 +103,8 @@ float algorithm::angle(const line &a, const line &b) {
     x2 /= s2;
     y2 /= s2;
     float dot = x1*x2 + y1*y2;
+    if (dot > 1) dot = 1;
+    if (dot < -1) dot = -1;
     return acos(dot);
 }
 

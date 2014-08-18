@@ -21,9 +21,9 @@
 #include <iostream>
 #include "../algorithm/algorithm.h"
 
-constexpr float spring_factor = 0.234;
-constexpr float spring_factor_mass = 0.4/700;
-constexpr float spring_factor_muscle = spring_factor/5.0;
+constexpr float spring_factor = 0.1;
+constexpr float spring_factor_mass = 0.004;
+constexpr float spring_factor_muscle = 0.02;
 constexpr float friction = 0.01;
 
 void creature::init() {
@@ -44,144 +44,15 @@ void creature::init() {
  * not thread safe
  * */
 void creature::update() {
-    static std::vector<point> old_hull;
-    old_hull.clear();
-    for(const auto &p : hull) {
-        old_hull.push_back(p);
-    }
+   physicsHullLength();
+   physicsHullArea();
+   physicsHullAngle();
+   physicsMuscles();
 
-    //movement by muscles
-    for(const auto& mu : muscle) {
-        const point &pa = old_hull[mu.from];
-        const point &pb = old_hull[mu.to];
-        point &pan = hull[mu.from];
-        point &pbn = hull[mu.to];
+   physicsSelfIntersection();
+   physicsIntersection();
 
-        point m(pa.x()-pb.x(), pa.y()-pb.y());
-
-        float l = algorithm::distance(point(0, 0), m);
-        float f = (mu.length*(1+mu.active)-l)*spring_factor_muscle;
-
-        point m1(m.x()/l*f, m.y()/l*f);
-        point m2(-m1.x(), -m1.y());
-
-        pan.x(pan.x()+m1.x());
-        pan.y(pan.y()+m1.y());
-
-        pbn.x(pbn.x()-m1.x());
-        pbn.y(pbn.y()-m1.y());
-    }
-
-
-    //movment by hull
-    for(int i = 0, j = hull.size()-1; i < hull.size(); j = i++) {
-        const point &pa = old_hull[j];
-        const point &pb = old_hull[i];
-        point &pan = hull[j];
-        point &pbn = hull[i];
-
-        point m(pa.x()-pb.x(), pa.y()-pb.y());
-
-        float l = algorithm::distance(point(0,0), m);
-        float f = (hull_length[i]-algorithm::distance(pa, pb))*spring_factor;
-
-        point m1(m.x()/l*f, m.y()/l*f);
-        point m2(-m1.x(), -m1.y());
-
-        pan.x(pan.x()+m1.x());
-        pan.y(pan.y()+m1.y());
-
-        pbn.x(pbn.x()+m2.x());
-        pbn.y(pbn.y()+m2.y());
-    }
-
-    //movment by area
-    float nmass = algorithm::area(hull);
-    float fmass = (nmass-mass)*spring_factor_mass;
-
-    //caclulate movment
-    for(int i = 0, j = hull.size()-1; i < hull.size(); j = i++) {
-        const point &pa = old_hull[j];
-        const point &pb = old_hull[i];
-        point &pan = hull[j];
-        point &pbn = hull[i];
-
-        line n = algorithm::normal(line(pa, pb));
-
-        point pv(n.target().x()-n.origin().x(), n.target().y()-n.origin().y());
-
-        point m(pv.x()*fmass, pv.y()*fmass);
-
-        pan.x(pan.x()+m.x());
-        pan.y(pan.y()+m.y());
-
-        pbn.x(pbn.x()+m.x());
-        pbn.y(pbn.y()+m.y());
-    }
-
-    //recenter:
-    auto centroid = algorithm::centroid(hull);
-    for(auto &p : hull) {
-        p.x(p.x()-centroid.x());
-        p.y(p.y()-centroid.y());
-    }
-
-
-    //caluclate global movment: (thats probably not physically correct)
-    point &m = motion;
-    m.x(0);
-    m.y(0);
-    hull_force.clear();
-    for(int i = 0, j = hull.size()-1; i < hull.size(); j = i++) {
-        const point &pa = old_hull[j];
-        const point &pb = old_hull[i];
-        const point &pan = hull[j];
-        const point &pbn = hull[i];
-
-        //const line n = algorithm::normal(line(pa, pb));
-        const line nn = algorithm::normal(line(pan, pbn));
-        point nv(nn.target().x()-nn.origin().x(), nn.target().y()-nn.origin().y());
-
-        //changed area:
-        static std::vector<point> poly;
-        poly.clear();
-        poly.push_back(pa);
-        poly.push_back(pan);
-        poly.push_back(pbn);
-        poly.push_back(pb);
-
-        float area = algorithm::area(poly);
-
-        //more area -> more force
-        float force = area*0.15;
-
-        force = -force; //move against normal
-        m.x(m.x()+force*nv.x());
-        m.y(m.y()+force*nv.y());
-
-        hull_force.push_back(force);
-    }
-    global.x(global.x()-m.x());
-    global.y(global.y()-m.y());
-    /*
-    auto centroid_old = algorithm::centroid(old_hull);
-    auto centroid_neu = algorithm::centroid(hull);
-
-    gloabl_motion.x(gloabl_motion.x()+centroid_neu.x()-centroid_old.x());
-    gloabl_motion.y(gloabl_motion.y()+centroid_neu.y()-centroid_old.y());
-
-    global.x(gloabl_motion.x());
-    global.y(gloabl_motion.y());*/
-    /*point m;
-    for(int i = 0; i < hull.size(); ++i) {
-        const point &pa = old_hull[i];
-        const point &pb = hull[i];
-        m.x(m.x()+pa.x()-pb.x());
-        m.y(m.y()+pa.y()-pb.y());
-    }
-    global.x(global.x()+m.x()/hull.size());
-    global.y(global.y()+m.y()/hull.size());
-    */
+   applyForces();
 }
 
 void creature::render() const {
@@ -204,9 +75,9 @@ void creature::render() const {
         circle(render_hull[i], 8).render();
         line l(render_hull[j], render_hull[i]);
         l.render();
-        line n = algorithm::normal(l, hull_force[i]*5);
-        n.colorR(1);
-        n.render();
+        //line n = algorithm::normal(l, hull_force[i]*5);
+        //n.colorR(1);
+        //n.render();
     }
 
     for(auto m : muscle) {
@@ -223,4 +94,98 @@ void creature::render() const {
     c.render();
 
     line(global, point(global.x()+motion.x()*5, global.y()+motion.y()*5)).render();
+}
+
+void creature::physicsHullLength() {
+    hull_force.resize(hull.size());
+    for(int i = 0, j = hull.size()-1; i < hull.size(); j = i++) {
+        float len = algorithm::distance(hull[i], hull[j]);
+        point m(hull[j].x() - hull[i].x(), hull[j].y() - hull[i].y());
+        m.x(m.x() / len);
+        m.y(m.y() / len);
+        float lend = hull_length[i] - len; //delta-mm
+        float force = lend * spring_factor; //F, spring_factor=N/mm
+        m.x(m.x() * force);
+        m.y(m.y() * force);
+        hull_force[j].x(hull_force[j].x() + m.x());
+        hull_force[j].y(hull_force[j].y() + m.y());
+        hull_force[i].x(hull_force[i].x() - m.x());
+        hull_force[i].y(hull_force[i].y() - m.y());
+    }
+}
+
+void creature::physicsHullArea() {
+    hull_force.resize(hull.size());
+    float nmass = algorithm::area(hull);
+    float len = 0;
+    for(int i = 0, j = hull.size()-1; i < hull.size(); j = i++) {
+        len += algorithm::distance(hull[i], hull[j]);
+    }
+    float nmass_each_line = (nmass-mass)/len;
+    for(int i = 0, j = hull.size()-1; i < hull.size(); j = i++) {
+        float slen = algorithm::distance(hull[i], hull[j]);
+        float f = nmass_each_line * slen * spring_factor_mass;
+        line n = algorithm::normal(line(hull[j], hull[i]));
+        point m(n.target().x()-n.origin().x(), n.target().y()-n.origin().y());
+        m.x(m.x() * f);
+        m.y(m.y() * f);
+        hull_force[j].x(hull_force[j].x() + m.x());
+        hull_force[j].y(hull_force[j].y() + m.y());
+        hull_force[i].x(hull_force[i].x() + m.x());
+        hull_force[i].y(hull_force[i].y() + m.y());
+    }
+}
+
+void creature::physicsHullAngle() {
+    //nothing for now
+}
+
+void creature::physicsSelfIntersection() {
+    //nothing for now
+}
+
+void creature::physicsIntersection() {
+    //nothing for now
+}
+
+void creature::physicsMuscles() {
+    for(auto &mu : muscle) {
+        int i = mu.from;
+        int j = mu.to;
+        float len = algorithm::distance(hull[i], hull[j]);
+        point m(hull[j].x() - hull[i].x(), hull[j].y() - hull[i].y());
+        m.x(m.x() / len);
+        m.y(m.y() / len);
+        float lend = mu.length*(1+mu.active) - len; //delta-mm
+        float force = lend * spring_factor_muscle; //F, spring_factor=N/mm
+        m.x(m.x() * force);
+        m.y(m.y() * force);
+        hull_force[j].x(hull_force[j].x() + m.x());
+        hull_force[j].y(hull_force[j].y() + m.y());
+        hull_force[i].x(hull_force[i].x() - m.x());
+        hull_force[i].y(hull_force[i].y() - m.y());
+    }
+}
+
+void creature::applyForces() {
+    hull_new.resize(hull.size());
+    //1. simplyfied friction
+    for(int i = 0; i < hull.size(); ++i) {
+        hull_force[i].x(hull_force[i].x() * (1-friction));
+        hull_force[i].y(hull_force[i].y() * (1-friction));
+    }
+    //2. apply to hull_new
+    for(int i = 0; i < hull.size(); ++i) {
+        hull_new[i].x(hull[i].x() + hull_force[i].x()/100.0); //thats not very right.. F!=delta mm
+        hull_new[i].y(hull[i].y() + hull_force[i].y()/100.0); //hull_force should be acceleration values ?
+    }
+    //3. recenter
+    point centroid = algorithm::centroid(hull);
+    point centroid_n = algorithm::centroid(hull_new);
+    for(int i = 0; i < hull.size(); ++i) {
+        hull_new[i].x(hull_new[i].x() - centroid_n.x() + centroid.x());
+        hull_new[i].y(hull_new[i].y() - centroid_n.y() + centroid.y());
+    }
+    //4. calculate movment .. hmm ?
+    std::swap(hull, hull_new);
 }

@@ -30,8 +30,11 @@ class creature
 
     protected:
         std::vector<point> hull;
+        std::vector<point> hull_new;
+
         std::vector<float> hull_length;
-        std::vector<float> hull_force;
+        std::vector<point> hull_force;
+
         point motion;
 
         struct Muscle {
@@ -46,6 +49,15 @@ class creature
 
         point global;
         point gloabl_motion;
+
+        void physicsMuscles();
+        void physicsHullLength();
+        void physicsHullArea();
+        void physicsHullAngle();
+        void physicsSelfIntersection();
+        void physicsIntersection();
+
+        void applyForces();
 
     public:
 

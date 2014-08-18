@@ -15,11 +15,11 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
   */
-#include "demo_creature.h"
+#include "demo_creature2.h"
 #include <cmath>
 #include "algorithm/algorithm.h"
 
-demo_creature::demo_creature()
+demo_creature2::demo_creature2()
 {
     //BUILD CREATURE
 
@@ -31,40 +31,43 @@ demo_creature::demo_creature()
         hull.push_back(point(x, y));
     }
 
-    for(int i = 0; i < points; i+=points/8) {
-        muscle.push_back(Muscle{
-                             i,
-                             (i+points/8)%points,
-                             0,
-                             0});
-    }
 
     muscle.push_back(Muscle{
                          0,
                          points/2,
                          0,
                          0});
-/*    muscle.push_back(Muscle{
-                         2,
+    muscle.push_back(Muscle{
+                         0,
+                         points/2+2,
+                         0,
+                         0});
+    muscle.push_back(Muscle{
+                         0,
+                         points/2-2,
+                         0,
+                         0});
+    /*muscle.push_back(Muscle{
                          3,
+                         points/2,
                          0,
                          0});*/
-
-    global.x(1024);
 
     init();
 }
 
-void demo_creature::update() {
+void demo_creature2::update() {
     //update ai:
     static int f = 0;
 
-    for(auto &m : muscle) {
-        m.active = 3*cos(f/100.0);
-    }
-
+    muscle[0].active = 3*cos(f/100.0);
+    muscle[1].active = 3*cos(f/100.0);
+    muscle[2].active = 3*cos(f/100.0);
 
     f += 1;
 
     creature::update();
+
+    //global.x(0);
+    //global.y(0);
 }

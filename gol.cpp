@@ -18,6 +18,7 @@
 #include "gol.h"
 #include <iostream>
 #include "demo_creature.h"
+#include "demo_creature2.h"
 
 point gol::screen2scene(const point& p) {
     return point((p.x()-width()/2)*2/m_zoom-m_view_x, (p.y()-height()/2)*(-2)/m_zoom-m_view_y);
@@ -76,6 +77,12 @@ void gol::onKeyboard(int key) {
 
 void gol::onRender() {
     static demo_creature test;
-    for(int i = 0; i < 10; ++i) test.update();
+    static demo_creature2 test2;
+    for(int i = 0; i < 10; ++i) {
+        test.update();
+        test2.update();
+    }
     test.render();
+    test2.render();
+
 }
