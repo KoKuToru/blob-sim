@@ -1,4 +1,4 @@
-game-of-life
+blob-sim
 ============
 
-Neural Networks, Genetic Algorithm, simulating bacterias ?
+Simulates blob..
